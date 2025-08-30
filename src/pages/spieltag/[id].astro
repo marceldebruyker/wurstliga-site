@@ -1,0 +1,63 @@
+---
+import Base from "../../layouts/BaseLayout.astro";
+const { id } = Astro.params;
+const file = `/season-2025-26/spieltage/${String(id).padStart(2,'0')}.json`;
+const res = await fetch(file);
+const doc = res.ok ? await res.json() : null;
+---
+<Base title={`Wurstliga – Spieltag ${id}`}>
+  {doc ? (
+    <>
+      <h2 class="text-2xl font-semibold mb-6">Spieltag {doc.spieltag} <span class="ml-3 text-sm px-2 py-1 rounded-lg bg-zinc-700/40 text-zinc-200">{doc.status}</span></h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <section class="space-y-2">
+          <h3 class="text-xl font-semibold">Spiele</h3>
+          <ul class="space-y-2">
+            {doc.matches.map((m:any) => (
+              <li class="border border-zinc-800 rounded-2xl p-3 flex items-center justify-between">
+                <div>
+                  <div class="text-sm text-zinc-400">{m.datetime_local?.slice(0,16).replace('T',' ') || '—'}</div>
+                  <div class="font-medium">{m.home} – {m.away}</div>
+                </div>
+                <div class="text-lg font-semibold">{m.result || '—'}</div>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section class="space-y-2">
+          <h3 class="text-xl font-semibold">Spieltagwertung</h3>
+          <table class="w-full text-sm">
+            <thead class="text-zinc-400">
+              <tr class="border-b border-zinc-800">
+                <th class="py-2 text-left">#</th>
+                <th class="py-2 text-left">Name</th>
+                <th class="py-2 text-right">P</th>
+                <th class="py-2 text-right">Wurst</th>
+                <th class="py-2 text-right">STS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(() => {
+                const sorted = [...doc.players].sort((a:any,b:any)=>
+                  b.kicktipp_P - a.kicktipp_P || a.name.localeCompare(b.name)
+                );
+                return sorted.map((p:any, i:number) => (
+                  <tr class="border-b border-zinc-900/60">
+                    <td class="py-2 text-zinc-400">{i+1}</td>
+                    <td class="py-2">{p.name}</td>
+                    <td class="py-2 text-right">{p.kicktipp_P}</td>
+                    <td class="py-2 text-right font-semibold">{p.wurstliga_pts}</td>
+                    <td class="py-2 text-right">{p.sts}</td>
+                  </tr>
+                ));
+              })()}
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </>
+  ) : (
+    <p>Kein Spieltag gefunden.</p>
+  )}
+</Base>

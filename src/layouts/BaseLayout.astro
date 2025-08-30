@@ -1,0 +1,25 @@
+---
+const { title = 'Wurstliga' } = Astro.props;
+---
+<html lang="de" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-full bg-zinc-950 text-zinc-100 antialiased">
+    <header class="sticky top-0 z-10 backdrop-blur bg-zinc-950/60 border-b border-zinc-800">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div class="size-8 rounded-xl bg-brand/20 grid place-items-center">🏆</div>
+        <h1 class="text-xl font-semibold">Wurstliga</h1>
+        <div class="ml-auto text-sm text-zinc-400">Saison 2025/2026</div>
+      </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <slot />
+    </main>
+    <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-zinc-500">
+      © 2025 Wurstliga
+    </footer>
+  </body>
+</html>
