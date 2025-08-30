@@ -2,6 +2,6 @@ import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
 
 export default {
-  output: 'hybrid',
+  output: 'static',
   integrations: [tailwind(), react()],
 };

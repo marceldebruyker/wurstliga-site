@@ -1,94 +1,123 @@
 ---
 import Base from "../../layouts/BaseLayout.astro";
-import { fetchSpieltag } from "../../lib/data";
 
-export const prerender = false;
+export async function getStaticPaths() {
+  return Array.from({length: 34}, (_, i) => ({
+    params: { id: String(i + 1) }
+  }));
+}
 
 const { id } = Astro.params;
-const doc = await fetchSpieltag(Number(id)).catch(() => null);
 ---
 <Base title={`Wurstliga – Spieltag ${id}`}>
-  {doc ? (
-    <>
-      <h2 class="text-2xl font-semibold mb-6">Spieltag {doc.spieltag} <span class="ml-3 text-sm px-2 py-1 rounded-lg bg-zinc-700/40 text-zinc-200">{doc.status}</span></h2>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <section class="space-y-2">
-          <h3 class="text-xl font-semibold">Spiele</h3>
-          <ul class="space-y-2">
-            {doc.matches.map((m:any) => {
-              const now = new Date();
-              const matchTime = m.datetime_local ? new Date(m.datetime_local) : null;
-              const hasResult = m.result && m.result.trim() !== '';
-              const isLive = matchTime && matchTime < now && !hasResult;
-              const isUpcoming = matchTime && matchTime > now;
-              
-              let statusIcon = '';
-              let statusClass = '';
-              
-              if (hasResult) {
-                statusIcon = '✅';
-                statusClass = 'border-green-800 bg-green-900/20';
-              } else if (isLive) {
-                statusIcon = '🔴';
-                statusClass = 'border-red-800 bg-red-900/20';
-              } else if (isUpcoming) {
-                statusIcon = '⏳';
-                statusClass = 'border-zinc-800';
-              } else {
-                statusClass = 'border-zinc-800';
-              }
-              
-              return (
-                <li class={`border rounded-2xl p-3 flex items-center justify-between ${statusClass}`}>
-                  <div>
-                    <div class="text-sm text-zinc-400 flex items-center gap-2">
-                      <span>{m.datetime_local?.slice(0,16).replace('T',' ') || '—'}</span>
-                      {statusIcon && <span>{statusIcon}</span>}
-                    </div>
-                    <div class="font-medium">{m.home} – {m.away}</div>
-                  </div>
-                  <div class={`text-lg font-semibold ${hasResult ? 'text-white' : 'text-zinc-500'}`}>
-                    {m.result || '—'}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-        <section class="space-y-2">
-          <h3 class="text-xl font-semibold">Spieltagwertung</h3>
-          <table class="w-full text-sm">
-            <thead class="text-zinc-400">
-              <tr class="border-b border-zinc-800">
-                <th class="py-2 text-left">#</th>
-                <th class="py-2 text-left">Name</th>
-                <th class="py-2 text-right">P</th>
-                <th class="py-2 text-right">Wurst</th>
-                <th class="py-2 text-right">STS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(() => {
-                const sorted = [...doc.players].sort((a:any,b:any)=>
-                  b.kicktipp_P - a.kicktipp_P || a.name.localeCompare(b.name)
-                );
-                return sorted.map((p:any, i:number) => (
-                  <tr class="border-b border-zinc-900/60">
-                    <td class="py-2 text-zinc-400">{i+1}</td>
-                    <td class="py-2">{p.name}</td>
-                    <td class="py-2 text-right">{p.kicktipp_P}</td>
-                    <td class="py-2 text-right font-semibold">{p.wurstliga_pts}</td>
-                    <td class="py-2 text-right">{p.sts}</td>
+  <div id="spieltag-container" data-spieltag-id={id}></div>
+  
+  <script>
+    import { fetchSpieltag } from '../../lib/data';
+    
+    async function loadSpieltag() {
+      const container = document.getElementById('spieltag-container');
+      const spieltagId = container?.getAttribute('data-spieltag-id');
+      
+      if (!container || !spieltagId) return;
+      
+      try {
+        const doc = await fetchSpieltag(Number(spieltagId));
+        
+        if (!doc) {
+          container.innerHTML = '<p>Kein Spieltag gefunden.</p>';
+          return;
+        }
+        
+        // Create matches HTML
+        const matchesHTML = doc.matches.map((m) => {
+          const now = new Date();
+          const matchTime = m.datetime_local ? new Date(m.datetime_local) : null;
+          const hasResult = m.result && m.result.trim() !== '';
+          const isLive = matchTime && matchTime < now && !hasResult;
+          const isUpcoming = matchTime && matchTime > now;
+          
+          let statusIcon = '';
+          let statusClass = '';
+          
+          if (hasResult) {
+            statusIcon = '✅';
+            statusClass = 'border-green-800 bg-green-900/20';
+          } else if (isLive) {
+            statusIcon = '🔴';
+            statusClass = 'border-red-800 bg-red-900/20';
+          } else if (isUpcoming) {
+            statusIcon = '⏳';
+            statusClass = 'border-zinc-800';
+          } else {
+            statusClass = 'border-zinc-800';
+          }
+          
+          return `
+            <li class="border rounded-2xl p-3 flex items-center justify-between ${statusClass}">
+              <div>
+                <div class="text-sm text-zinc-400 flex items-center gap-2">
+                  <span>${m.datetime_local?.slice(0,16).replace('T',' ') || '—'}</span>
+                  ${statusIcon ? `<span>${statusIcon}</span>` : ''}
+                </div>
+                <div class="font-medium">${m.home} – ${m.away}</div>
+              </div>
+              <div class="text-lg font-semibold ${hasResult ? 'text-white' : 'text-zinc-500'}">
+                ${m.result || '—'}
+              </div>
+            </li>
+          `;
+        }).join('');
+        
+        // Create players table HTML
+        const sorted = [...doc.players].sort((a,b) => 
+          b.kicktipp_P - a.kicktipp_P || a.name.localeCompare(b.name)
+        );
+        const playersHTML = sorted.map((p, i) => `
+          <tr class="border-b border-zinc-900/60">
+            <td class="py-2 text-zinc-400">${i+1}</td>
+            <td class="py-2">${p.name}</td>
+            <td class="py-2 text-right">${p.kicktipp_P}</td>
+            <td class="py-2 text-right font-semibold">${p.wurstliga_pts}</td>
+            <td class="py-2 text-right">${p.sts}</td>
+          </tr>
+        `).join('');
+        
+        container.innerHTML = `
+          <h2 class="text-2xl font-semibold mb-6">Spieltag ${doc.spieltag} <span class="ml-3 text-sm px-2 py-1 rounded-lg bg-zinc-700/40 text-zinc-200">${doc.status}</span></h2>
+          
+          <div class="grid md:grid-cols-2 gap-6">
+            <section class="space-y-2">
+              <h3 class="text-xl font-semibold">Spiele</h3>
+              <ul class="space-y-2">
+                ${matchesHTML}
+              </ul>
+            </section>
+            <section class="space-y-2">
+              <h3 class="text-xl font-semibold">Spieltagwertung</h3>
+              <table class="w-full text-sm">
+                <thead class="text-zinc-400">
+                  <tr class="border-b border-zinc-800">
+                    <th class="py-2 text-left">#</th>
+                    <th class="py-2 text-left">Name</th>
+                    <th class="py-2 text-right">P</th>
+                    <th class="py-2 text-right">Wurst</th>
+                    <th class="py-2 text-right">STS</th>
                   </tr>
-                ));
-              })()}
-            </tbody>
-          </table>
-        </section>
-      </div>
-    </>
-  ) : (
-    <p>Kein Spieltag gefunden.</p>
-  )}
+                </thead>
+                <tbody>
+                  ${playersHTML}
+                </tbody>
+              </table>
+            </section>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading Spieltag:', error);
+        container.innerHTML = '<p>Fehler beim Laden der Daten.</p>';
+      }
+    }
+    
+    loadSpieltag();
+  </script>
 </Base>
