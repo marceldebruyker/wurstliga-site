@@ -8,10 +8,12 @@ export default function StandingsTable(){
   const [spielCounted, setSpielCounted] = useState<number[]>([]);
 
   useEffect(() => {
-    fetch('/season-2025-26/standings.json').then(r=>r.json()).then(d=>{
+    const baseUrl = import.meta.env.PUBLIC_DATA_BASE_URL || 'https://marceldebruyker.github.io/wurstliga-data/season-2025-26';
+    const url = `${baseUrl}/../standings.json?t=${Date.now()}`;
+    fetch(url).then(r=>r.json()).then(d=>{
       setRows(d.players);
       setSpielCounted(d.spieltage_counted);
-    });
+    }).catch(console.error);
   }, []);
 
   return (
