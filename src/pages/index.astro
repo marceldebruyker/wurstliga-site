@@ -6,17 +6,17 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
 <Base title="Wurstliga – Tabelle">
   <section class="space-y-8">
     <div class="space-y-4">
-      <h2 class="text-2xl font-semibold">Gesamtwertung</h2>
-      <StandingsTable client:load />
-    </div>
-    
-    <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold">Spieltag auswählen</h2>
+        <h2 class="text-2xl font-semibold">Gesamtwertung</h2>
         <div id="last-update" class="text-sm text-zinc-400">
           Lade Update-Zeit...
         </div>
       </div>
+      <StandingsTable client:load />
+    </div>
+    
+    <div class="space-y-4">
+      <h2 class="text-2xl font-semibold">Spieltag auswählen</h2>
       <div class="max-w-xs">
         <select 
           id="spieltag-select"
