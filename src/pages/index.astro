@@ -8,7 +8,7 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-semibold">Gesamtwertung</h2>
-        <div class="text-sm text-zinc-400">
+        <div class="text-sm text-zinc-400 text-right">
           <div id="last-update">Lade...</div>
           <div class="text-xs">Updates alle 10-15 Min</div>
         </div>
@@ -60,7 +60,7 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
               minute: '2-digit'
             });
             
-            document.getElementById('last-update').textContent = `${timeOnly} Uhr`;
+            document.getElementById('last-update').textContent = `Update: ${timeOnly} Uhr`;
           }
         } catch (error) {
           console.error('Error loading last update:', error);
