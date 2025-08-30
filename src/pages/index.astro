@@ -11,19 +11,28 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
     </div>
     
     <div class="space-y-4">
-      <h2 class="text-2xl font-semibold">Spieltage</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
-        {Array.from({length: 34}, (_, i) => (
-          <a 
-            href={`/spieltag/${i + 1}`}
-            class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg p-3 text-center transition-colors"
-          >
-            <div class="text-sm text-zinc-400">Spieltag</div>
-            <div class="text-lg font-semibold">{i + 1}</div>
-          </a>
-        ))}
+      <h2 class="text-2xl font-semibold">Spieltag auswählen</h2>
+      <div class="max-w-xs">
+        <select 
+          id="spieltag-select"
+          class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-brand"
+        >
+          <option value="">-- Spieltag wählen --</option>
+          {Array.from({length: 34}, (_, i) => (
+            <option value={i + 1}>Spieltag {i + 1}</option>
+          ))}
+        </select>
       </div>
     </div>
+    
+    <script>
+      document.getElementById('spieltag-select')?.addEventListener('change', (e) => {
+        const value = (e.target as HTMLSelectElement).value;
+        if (value) {
+          window.location.href = `/spieltag/${value}`;
+        }
+      });
+    </script>
     
     <div>
       <h2 class="text-2xl font-semibold">Rangentwicklung</h2>
