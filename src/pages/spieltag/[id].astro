@@ -2,11 +2,7 @@
 import Base from "../../layouts/BaseLayout.astro";
 import { fetchSpieltag } from "../../lib/data";
 
-export async function getStaticPaths() {
-  return Array.from({length: 34}, (_, i) => ({
-    params: { id: String(i + 1) }
-  }));
-}
+export const prerender = false;
 
 const { id } = Astro.params;
 const doc = await fetchSpieltag(Number(id)).catch(() => null);
