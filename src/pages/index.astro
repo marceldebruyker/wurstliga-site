@@ -11,7 +11,12 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
     </div>
     
     <div class="space-y-4">
-      <h2 class="text-2xl font-semibold">Spieltag auswählen</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold">Spieltag auswählen</h2>
+        <div id="last-update" class="text-sm text-zinc-400">
+          Lade Update-Zeit...
+        </div>
+      </div>
       <div class="max-w-xs">
         <select 
           id="spieltag-select"
@@ -32,6 +37,33 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
           window.location.href = `/spieltag/${value}`;
         }
       });
+      
+      // Load last update time
+      async function loadLastUpdate() {
+        try {
+          const response = await fetch(`https://marceldebruyker.github.io/wurstliga-data/season-2025-26/metadata.json?t=${Date.now()}`);
+          const metadata = await response.json();
+          
+          if (metadata.last_update) {
+            const updateTime = new Date(metadata.last_update);
+            const germanTime = updateTime.toLocaleString('de-DE', {
+              timeZone: 'Europe/Berlin',
+              day: '2-digit',
+              month: '2-digit', 
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            document.getElementById('last-update').textContent = `Letztes Update: ${germanTime}`;
+          }
+        } catch (error) {
+          console.error('Error loading last update:', error);
+          document.getElementById('last-update').textContent = 'Update-Zeit nicht verfügbar';
+        }
+      }
+      
+      loadLastUpdate();
     </script>
     
     <div>
