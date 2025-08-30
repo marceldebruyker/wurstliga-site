@@ -26,8 +26,7 @@ export default function InteractiveRankChart() {
     const loadData = async () => {
       try {
         // Get metadata first
-        const baseUrl = import.meta.env.PUBLIC_DATA_BASE_URL || 'https://marceldebruyker.github.io/wurstliga-data/season-2025-26';
-        const metaRes = await fetch(`${baseUrl}/metadata.json?t=${Date.now()}`);
+        const metaRes = await fetch(`https://marceldebruyker.github.io/wurstliga-data/season-2025-26/metadata.json?t=${Date.now()}`);
         const meta = await metaRes.json();
         const spieltageIds = Object.keys(meta.spieltage).map(Number).sort((a,b) => a-b);
         
@@ -36,7 +35,7 @@ export default function InteractiveRankChart() {
         const cumulativePoints = new Map<string, number>();
         
         for (const spieltagId of spieltageIds) {
-          const res = await fetch(`${baseUrl}/spieltage/${String(spieltagId).padStart(2,'0')}.json?t=${Date.now()}`);
+          const res = await fetch(`https://marceldebruyker.github.io/wurstliga-data/season-2025-26/spieltage/${String(spieltagId).padStart(2,'0')}.json?t=${Date.now()}`);
           if (!res.ok) continue;
           
           const spieltagData = await res.json();

@@ -1,7 +1,7 @@
 export const DATA_BASE = import.meta.env.PUBLIC_DATA_BASE_URL || "https://marceldebruyker.github.io/wurstliga-data/season-2025-26";
 
 export async function fetchStandings() {
-  const url = `${DATA_BASE}/../standings.json?t=${Date.now()}`;
+  const url = `https://marceldebruyker.github.io/wurstliga-data/season-2025-26/standings.json?t=${Date.now()}`;
   const r = await fetch(url, { cache: "no-store" });
   return r.json();
 }
