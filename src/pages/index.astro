@@ -44,8 +44,8 @@ import InteractiveRankChart from "../components/InteractiveRankChart";
           const response = await fetch(`https://marceldebruyker.github.io/wurstliga-data/season-2025-26/metadata.json?t=${Date.now()}`);
           const metadata = await response.json();
           
-          if (metadata.last_update) {
-            const updateTime = new Date(metadata.last_update);
+          if (metadata.updated_at) {
+            const updateTime = new Date(metadata.updated_at);
             const germanTime = updateTime.toLocaleString('de-DE', {
               timeZone: 'Europe/Berlin',
               day: '2-digit',
