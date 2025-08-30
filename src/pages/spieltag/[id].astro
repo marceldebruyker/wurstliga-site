@@ -20,15 +20,44 @@ const doc = await fetchSpieltag(Number(id)).catch(() => null);
         <section class="space-y-2">
           <h3 class="text-xl font-semibold">Spiele</h3>
           <ul class="space-y-2">
-            {doc.matches.map((m:any) => (
-              <li class="border border-zinc-800 rounded-2xl p-3 flex items-center justify-between">
-                <div>
-                  <div class="text-sm text-zinc-400">{m.datetime_local?.slice(0,16).replace('T',' ') || '—'}</div>
-                  <div class="font-medium">{m.home} – {m.away}</div>
-                </div>
-                <div class="text-lg font-semibold">{m.result || '—'}</div>
-              </li>
-            ))}
+            {doc.matches.map((m:any) => {
+              const now = new Date();
+              const matchTime = m.datetime_local ? new Date(m.datetime_local) : null;
+              const hasResult = m.result && m.result.trim() !== '';
+              const isLive = matchTime && matchTime < now && !hasResult;
+              const isUpcoming = matchTime && matchTime > now;
+              
+              let statusIcon = '';
+              let statusClass = '';
+              
+              if (hasResult) {
+                statusIcon = '✅';
+                statusClass = 'border-green-800 bg-green-900/20';
+              } else if (isLive) {
+                statusIcon = '🔴';
+                statusClass = 'border-red-800 bg-red-900/20';
+              } else if (isUpcoming) {
+                statusIcon = '⏳';
+                statusClass = 'border-zinc-800';
+              } else {
+                statusClass = 'border-zinc-800';
+              }
+              
+              return (
+                <li class={`border rounded-2xl p-3 flex items-center justify-between ${statusClass}`}>
+                  <div>
+                    <div class="text-sm text-zinc-400 flex items-center gap-2">
+                      <span>{m.datetime_local?.slice(0,16).replace('T',' ') || '—'}</span>
+                      {statusIcon && <span>{statusIcon}</span>}
+                    </div>
+                    <div class="font-medium">{m.home} – {m.away}</div>
+                  </div>
+                  <div class={`text-lg font-semibold ${hasResult ? 'text-white' : 'text-zinc-500'}`}>
+                    {m.result || '—'}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
         <section class="space-y-2">
