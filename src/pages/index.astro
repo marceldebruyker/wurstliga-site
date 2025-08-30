@@ -2,6 +2,9 @@
 import Base from "../layouts/BaseLayout.astro";
 import StandingsTable from "../components/StandingsTable";
 import InteractiveRankChart from "../components/InteractiveRankChart";
+import { fetchStandings } from "../lib/data";
+
+const standings = await fetchStandings().catch(() => null);
 ---
 <Base title="Wurstliga – Tabelle">
   <section class="space-y-8">

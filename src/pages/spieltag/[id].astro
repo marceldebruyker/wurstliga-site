@@ -1,9 +1,15 @@
 ---
 import Base from "../../layouts/BaseLayout.astro";
+import { fetchSpieltag } from "../../lib/data";
+
+export async function getStaticPaths() {
+  return Array.from({length: 34}, (_, i) => ({
+    params: { id: String(i + 1) }
+  }));
+}
+
 const { id } = Astro.params;
-const file = `/season-2025-26/spieltage/${String(id).padStart(2,'0')}.json`;
-const res = await fetch(file);
-const doc = res.ok ? await res.json() : null;
+const doc = await fetchSpieltag(Number(id)).catch(() => null);
 ---
 <Base title={`Wurstliga – Spieltag ${id}`}>
   {doc ? (
